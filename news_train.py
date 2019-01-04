@@ -253,9 +253,6 @@ def main(argv=None):
     x_train, y_train, vocab_processor, x_dev, y_dev, x_test, y_test = preprocess(categories)
     print(x_train.shape)
     train(x_train, y_train, vocab_processor, x_dev, y_dev, x_test, y_test)
-    #categories = ["alt.atheism", "soc.religion.christian","misc.forsale","rec.sport.baseball"]
-    #x_train, y_train, vocab_processor, x_dev, y_dev, x_test, y_test = preprocess(categories)
-    #train(x_train, y_train, vocab_processor, x_dev, y_dev, x_test, y_test, True)
 
 if __name__ == '__main__':
     tf.app.run()
