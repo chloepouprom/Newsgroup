@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+import sys
 from collections import Counter
 import math
 import tensorflow as tf
@@ -75,6 +76,7 @@ def preprocess(categories):
     print(x)
 
     x_test, y_test = data_helpers20.load_data_and_labels("test", categories)
+    x_test = np.array(list(vocab_processor.fit_transform(x_test)))
 
     # Randomly shuffle data
     np.random.seed(10)
@@ -91,6 +93,7 @@ def preprocess(categories):
     del x, y, x_shuffled, y_shuffled
     print("Vocabulary Size: {:d}".format(len(vocab_processor.vocabulary_)))
     print("Train/Dev split: {:d}/{:d}".format(len(y_train), len(y_dev)))
+    print(type(x_dev), type(x_test))
     return x_train, y_train, vocab_processor, x_dev, y_dev, x_test, y_test
 
 
@@ -163,6 +166,10 @@ def train(x_train, y_train, vocab_processor, x_dev, y_dev, x_test, y_test,
             # Initialize all variables
             sess.run(tf.global_variables_initializer())
 
+            if transfer_learning == True:
+                saver.restore(sess,('./runs/1546916549/checkpoints/model-576'))
+                global_step.load(1, sess)
+
 
             def train_step(x_batch, y_batch):
                 """
@@ -179,9 +186,6 @@ def train(x_train, y_train, vocab_processor, x_dev, y_dev, x_test, y_test,
                 time_str = datetime.datetime.now().isoformat()
                 print("{}: step {}, loss {:g}, acc {:g}".format(time_str, step, loss, accuracy))
                 train_summary_writer.add_summary(summaries, step)
-                if step % 100 == 1:
-                    save_path = saver.save(sess,"/home/korhanin/Desktop/Newsgroup/model.ckpt")
-                    print("Model saved in path: %s", save_path)
                 return accuracy
 
             def dev_step(x_batch, y_batch, writer=None):
@@ -200,7 +204,7 @@ def train(x_train, y_train, vocab_processor, x_dev, y_dev, x_test, y_test,
                 print("{}: step {}, loss {:g}, acc {:g}".format(time_str, step, loss, accuracy))
                 return accuracy
 
-            def eval_test(x_batch, y_batch):
+            def eval_test(x_batch, y_batch, writer=None):
                 """
                 Evaluates model on a test set
                 """
@@ -235,7 +239,9 @@ def train(x_train, y_train, vocab_processor, x_dev, y_dev, x_test, y_test,
                     acc = dev_step(x_dev, y_dev, writer=dev_summary_writer)
                     print("")
                     dev_acc.append(acc)
-                    if len(dev_acc) > 3 and sum(dev_acc[-4:-2])/3 > dev_acc[-1]:
+                    if len(dev_acc) > 3 and sum(dev_acc[-4:-1])/3 > dev_acc[-1]:
+                        save_path = saver.save(sess,"saved_models/model", global_step=current_step)
+                        print("Model saved in path: %s", save_path)
                         print(dev_acc)
                         break
 
@@ -252,7 +258,11 @@ def main(argv=None):
     categories = ["alt.atheism", "soc.religion.christian","misc.forsale","rec.sport.baseball"]
     x_train, y_train, vocab_processor, x_dev, y_dev, x_test, y_test = preprocess(categories)
     print(x_train.shape)
-    train(x_train, y_train, vocab_processor, x_dev, y_dev, x_test, y_test)
+    transfer_learning = False
+    if len(sys.argv) >= 2 and sys.argv[1] == 'True':
+        transfer_learning = True
+        print("Transfer learning is happening")
+    train(x_train, y_train, vocab_processor, x_dev, y_dev, x_test, y_test, transfer_learning)
 
 if __name__ == '__main__':
     tf.app.run()
