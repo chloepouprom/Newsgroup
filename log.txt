@@ -1,0 +1,5 @@
+categories = ["alt.atheism", "soc.religion.christian","misc.forsale","rec.sport.baseball"]
+Saved model checkpoint to /home/ubuntu/Notebooks/Newsgroup/runs/1547000092/checkpoints/model-640
+
+categories = ["alt.atheism", "comp.graphics", "comp.os.ms-windows.misc", "comp.sys.ibm.pc.hardware", "comp.sys.mac.hardware", "comp.windows.x", "misc.forsale", "rec.autos", "rec.motorcycles", "rec.sport.baseball"]
+~/Notebooks/Newsgroup/runs/1547001584/checkpoints

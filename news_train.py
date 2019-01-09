@@ -239,7 +239,7 @@ def train(x_train, y_train, vocab_processor, x_dev, y_dev, x_test, y_test,
                     acc = dev_step(x_dev, y_dev, writer=dev_summary_writer)
                     print("")
                     dev_acc.append(acc)
-                    if len(dev_acc) > 3 and sum(dev_acc[-4:-1])/3 > dev_acc[-1]:
+                    if len(dev_acc) > 10 and min(dev_acc[-10:-1]) >= dev_acc[-1]:
                         save_path = saver.save(sess,"saved_models/model", global_step=current_step)
                         print("Model saved in path: %s", save_path)
                         print(dev_acc)
@@ -255,7 +255,8 @@ def train(x_train, y_train, vocab_processor, x_dev, y_dev, x_test, y_test,
 
 def main(argv=None):
 #   preprocess()
-    categories = ["alt.atheism", "soc.religion.christian","misc.forsale","rec.sport.baseball"]
+    categories = ["alt.atheism", "comp.graphics", "comp.os.ms-windows.misc", "comp.sys.ibm.pc.hardware", "comp.sys.mac.hardware", "comp.windows.x", "misc.forsale", "rec.autos", "rec.motorcycles", "rec.sport.baseball"]
+   # categories = ["alt.atheism", "soc.religion.christian","misc.forsale","rec.sport.baseball"]
     x_train, y_train, vocab_processor, x_dev, y_dev, x_test, y_test = preprocess(categories)
     print(x_train.shape)
     transfer_learning = False
